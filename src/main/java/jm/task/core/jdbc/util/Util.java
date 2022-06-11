@@ -1,13 +1,14 @@
 package jm.task.core.jdbc.util;
 
+import jm.task.core.jdbc.model.User;
 import org.hibernate.HibernateException;
 import org.hibernate.SessionFactory;
+import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;
-
+import org.hibernate.service.ServiceRegistry;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.util.Properties;
 
 public class Util {
 
@@ -27,21 +28,23 @@ public class Util {
     }
 
     public static SessionFactory getSessionFactory () {
-        if (sessionFactory == null) {
-            try {
-                Configuration configuration = new Configuration();
-                Properties prop = new Properties();
+        try {
+            Configuration configuration = new Configuration()
+                    .setProperty("hibernate.connection.driver_class", "com.mysql.cj.jdbc.Driver")
+                    .setProperty("hibernate.connection.url", URL)
+                    .setProperty("hibernate.connection.username", USERNAME)
+                    .setProperty("hibernate.connection.password", PASSWORD)
+                    .setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect")
+                    .addAnnotatedClass(User.class)
+                    .setProperty("hibernate.c3p0.min_size","5")
+                    .setProperty("hibernate.c3p0.max_size","200")
+                    .setProperty("hibernate.c3p0.max_statements","200");
 
-                prop.setProperty("hibernate.connection.url", URL);
-                prop.setProperty("hibernate.connection.username", USERNAME);
-                prop.setProperty("hibernate.connection.password", PASSWORD);
-                prop.setProperty("hibernate.connection.driver_class", "com.mysql.jdbc.Driver");
-                prop.setProperty("hibernate.dialect", "org.hibernate.dialect.MySQLDialect");
-
-                sessionFactory = configuration.addProperties(prop).buildSessionFactory();
-            } catch (HibernateException e) {
-                e.printStackTrace();
-            }
+            ServiceRegistry serviceRegistry = new StandardServiceRegistryBuilder()
+                    .applySettings(configuration.getProperties()).build();
+            sessionFactory = configuration.buildSessionFactory(serviceRegistry);
+        } catch (HibernateException e) {
+            e.printStackTrace();
         }
         return sessionFactory;
     }
