@@ -26,7 +26,7 @@ public class UserDaoHibernateImpl implements UserDao {
                     "name VARCHAR(30) NOT NULL," +
                     "lastName VARCHAR(50) NOT NULL," +
                     "age INT NOT NULL CHECK (age > '0'))";
-            session.createSQLQuery(sql).addEntity(User.class);
+            session.createSQLQuery(sql).executeUpdate();
             transaction.commit();
         } catch (Exception e) {
             transaction.rollback();
@@ -40,7 +40,7 @@ public class UserDaoHibernateImpl implements UserDao {
         Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
         try (session) {
-            session.createSQLQuery("DROP TABLE IF EXISTS users").addEntity(User.class);
+            session.createSQLQuery("DROP TABLE IF EXISTS users").executeUpdate();
             transaction.commit();
         } catch (Exception e) {
             transaction.rollback();
@@ -56,7 +56,7 @@ public class UserDaoHibernateImpl implements UserDao {
         try (session) {
             session.save(new User(name, lastName, age));
             transaction.commit();
-            System.out.println("User с именем " + name + " добавлен в БД");
+            System.out.println("User СЃ РёРјРµРЅРµРј " + name + " РґРѕР±Р°РІР»РµРЅ РІ Р‘Р”");
 
         } catch (Exception e) {
             transaction.rollback();
@@ -87,10 +87,10 @@ public class UserDaoHibernateImpl implements UserDao {
 
         Session session = sessionFactory.openSession();
         Transaction transaction = session.beginTransaction();
-        List<User> list = session.createQuery("SELECT u FROM User u",User.class).getResultList();
+        List<User> list = session.createQuery("from User").getResultList();
         try (session) {
+
             transaction.commit();
-            return list;
         } catch (Exception e) {
             transaction.rollback();
             e.printStackTrace();
